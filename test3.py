@@ -10,6 +10,9 @@ from openpyxl.utils.units import pixels_to_EMU
 from openpyxl.drawing.image import Image
 from logging.handlers import TimedRotatingFileHandler
 import logging
+import subprocess
+import tkinter as tk
+from tkinter import messagebox
 
 
 # 日志
@@ -3296,11 +3299,24 @@ def process_files():
             log.error("没有找到对应的模板文件")
 
 
+
+#检查远程仓库是否有变动
+subprocess.run(['git','fetch'])
+
+diff_output  = subprocess.run(['git','differ','origin/master'],capture_output=True,text=True).stdout
+
+
 #主函数
 if __name__ == "__main__":
     log = mylogger("test", console_print=True, level=20, log_file=log_file)
+
     try:
         process_files()
     except Exception as e:
         log.error(traceback.format_exc())
-
+    #检查代码是否有变动
+    if diff_output:
+        root = tk.TK()
+        root.witdraw()
+        messagebox.showinfo("有新版本出现，请及时更新")
+        root.destory()
